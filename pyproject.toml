@@ -11,7 +11,7 @@ requires-python = ">=3.11"
 license = { text = "MIT" }
 authors = [{ name = "nlpcvvoice" }]
 dependencies = [
-    "openai>=1.40",
+    "langchain-openai>=0.2.0",
     "langsmith>=0.1.100",
     "ragas>=0.2.0",
     "deepeval>=2.0.0",
@@ -20,6 +20,7 @@ dependencies = [
     "pydantic>=2.8",
     "python-dotenv>=1.0",
     "pandas>=2.2",
+    "requests>=2.32",
     "prometheus-client>=0.20",
     "opentelemetry-api>=1.26",
     "opentelemetry-sdk>=1.26",
