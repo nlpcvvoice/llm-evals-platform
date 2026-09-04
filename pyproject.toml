@@ -1,0 +1,50 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llm-evals-platform"
+version = "0.1.0"
+description = "Production LLM Evaluation & Monitoring Platform for RAG/Agent systems"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "nlpcvvoice" }]
+dependencies = [
+    "openai>=1.40",
+    "langsmith>=0.1.100",
+    "ragas>=0.2.0",
+    "deepeval>=2.0.0",
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.30",
+    "pydantic>=2.8",
+    "python-dotenv>=1.0",
+    "pandas>=2.2",
+    "prometheus-client>=0.20",
+    "opentelemetry-api>=1.26",
+    "opentelemetry-sdk>=1.26",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.24",
+    "pytest-cov>=5.0",
+    "mypy>=1.11",
+    "ruff>=0.6",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+addopts = "-q"
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W"]
