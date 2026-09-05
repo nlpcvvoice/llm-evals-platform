@@ -34,3 +34,4 @@ htmlcov/
 # Data / tmp
 tmp/
 *.log
+.ipynb_checkpoints/
