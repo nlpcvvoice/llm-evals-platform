@@ -84,18 +84,21 @@ src/llm_evals/
 | **Evaluation & Quality** | Golden dataset design (QAItem schema, versioned JSONL) | `eval/data.py` |
 | | Strict data validation (id/question/answer/limits/eval-kinds) | `eval/validation.py` |
 | | Dataset loading, sampling, and statistics | `eval/dataset.py` |
+| | RAGAS metrics (faithfulness, context_recall) with free LLM judge | `eval/ragas_eval.py` |
+| | Evaluator protocol + pluggable runner (drop-in metrics) | `eval/heuristic.py`, `eval/runner.py` |
+| | Judge model selection for structured-output fidelity | `eval/llm_wrappers.py`, `config.py` |
 | **Infrastructure & Engineering** | Python `src/` layout + dependency pinning (`pyproject.toml`) | repo root |
 | | Type safety (mypy, zero errors) | all modules |
 | | Linting (ruff, zero issues) | all modules |
 | | CI/CD on GitHub Actions (ruff + mypy + pytest) | `.github/workflows/` |
-| | Test-driven development (23 unit tests) | `tests/` |
+| | Test-driven development (41 unit tests) | `tests/` |
 | **Status badge** | Automated CI status in README | header above |
 
 ## Roadmap
 
 - [x] Golden dataset scaffold (QAItem schema, loader, validator, CLI, seed data)
 - [ ] Golden dataset (200+ QA full coverage)
-- [ ] Three-layer offline evaluation (Eval Runner, RAGAS, DeepEval, LLM-as-judge)
+- [x] Three-layer offline evaluation (Eval Runner, heuristic, RAGAS w/ free judge)
 - [ ] Regression gate + CI integration
 - [ ] Production monitoring & drift detection
 - [ ] Cost & latency tracking
