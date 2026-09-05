@@ -71,10 +71,31 @@ src/llm_evals/
 └── api/         # FastAPI service
 ```
 
+## Skills Used
+
+> Active skills — updated incrementally as the project progresses.
+
+| Category | Skill | Where implemented |
+|----------|-------|-------------------|
+| **LLM Engineering** | Multi-model routing & automatic fallback rotation | `llm.py` |
+| | Cost control: enforced `:free`-only model policy | `config.py: assert_free_only` |
+| | OpenAI-compatible provider abstraction (OpenRouter) | `llm.py` |
+| | Guardrail: secret key never logged, presence-only reporting | `config.py` |
+| **Evaluation & Quality** | Golden dataset design (QAItem schema, versioned JSONL) | `eval/data.py` |
+| | Strict data validation (id/question/answer/limits/eval-kinds) | `eval/validation.py` |
+| | Dataset loading, sampling, and statistics | `eval/dataset.py` |
+| **Infrastructure & Engineering** | Python `src/` layout + dependency pinning (`pyproject.toml`) | repo root |
+| | Type safety (mypy, zero errors) | all modules |
+| | Linting (ruff, zero issues) | all modules |
+| | CI/CD on GitHub Actions (ruff + mypy + pytest) | `.github/workflows/` |
+| | Test-driven development (23 unit tests) | `tests/` |
+| **Status badge** | Automated CI status in README | header above |
+
 ## Roadmap
 
-- [ ] Golden dataset builder (200+ QA)
-- [ ] Three-layer offline evaluation
+- [x] Golden dataset scaffold (QAItem schema, loader, validator, CLI, seed data)
+- [ ] Golden dataset (200+ QA full coverage)
+- [ ] Three-layer offline evaluation (Eval Runner, RAGAS, DeepEval, LLM-as-judge)
 - [ ] Regression gate + CI integration
 - [ ] Production monitoring & drift detection
 - [ ] Cost & latency tracking
