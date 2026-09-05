@@ -16,24 +16,24 @@ closes that gap with three layers of evaluation and a two-state monitoring loop.
 
 ```mermaid
 flowchart TD
-    subgraph OFFLINE["Offline Eval (dev)"]
-        DS["Golden Dataset (200+ QA)"] --> RUN["Eval Runner"]
-        RUN --> RG["RAGAS: recall@k / faithfulness"]
-        RUN --> DE["DeepEval: tool-call / multi-turn"]
-        RUN --> LJ["LLM-as-judge"]
-        RG --> REP["Eval Report"]
+    subgraph OFFLINE[Offline Eval]
+        DS[Golden Dataset 200+ QA] --> RUN[Eval Runner]
+        RUN --> RG[RAGAS]
+        RUN --> DE[DeepEval]
+        RUN --> LJ[LLM-as-judge]
+        RG --> REP[Eval Report]
         DE --> REP
         LJ --> REP
-        REP --> GATE{"Regression Gate"}
-        GATE -->|pass| DEPLOY["Deploy"]
-        GATE -->|fail| BLOCK["Block + diff report"]
+        REP --> GATE{Regression Gate}
+        GATE -- pass --> DEPLOY[Deploy]
+        GATE -- fail --> BLOCK[Block + diff report]
     end
 
-    subgraph ONLINE["Online Monitor (prod)"]
-        PROD["Production traces"] --> H["Heuristic evals (100%)"]
-        H --> SAM["LLM-as-judge sample (10-20%)"]
-        SAM --> ALERT["Alerts: drift / hallucination / cost"]
-        PROD --> COST["Cost tracking"]
+    subgraph ONLINE[Online Monitor]
+        PROD[Production traces] --> H[Heuristic evals 100pct]
+        H --> SAM[LLM-as-judge sample 10-20pct]
+        SAM --> ALERT[Alerts]
+        PROD --> COST[Cost tracking]
     end
 
     DEPLOY --> PROD
@@ -45,8 +45,7 @@ flowchart TD
 ### Prerequisites
 
 - Python 3.11+
-- OpenAI API key (for `LLM-as-judge` and provider calls)
-- LangSmith API key (optional, for tracing)
+- OpenRouter API key (free models, see `config.py`)
 
 ### Setup
 
@@ -54,7 +53,7 @@ flowchart TD
 python3.11 -m venv .venv
 source .venv/bin/activate
 pip install -e ".[dev]"
-cp .env.example .env   # then fill in your keys
+cp .env.example .env   # non-sensitive config; API key loads from shared env
 ```
 
 ### Run tests
