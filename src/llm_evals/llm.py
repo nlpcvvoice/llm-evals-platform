@@ -13,6 +13,7 @@ from collections.abc import Sequence
 from typing import Any
 
 from langchain_openai import ChatOpenAI
+from pydantic import SecretStr
 
 from .config import OpenRouterConfig, get_openrouter_config
 
@@ -23,7 +24,7 @@ def _build_chat_client(cfg: OpenRouterConfig, model: str) -> ChatOpenAI:
     """Build a ChatOpenAI client pointed at OpenRouter's OpenAI-compatible API."""
     return ChatOpenAI(
         model=model,
-        api_key=cfg.api_key,
+        api_key=SecretStr(cfg.api_key),
         base_url=cfg.base_url,
         temperature=0,
         timeout=cfg.timeout,

@@ -22,5 +22,7 @@ jobs:
           pip install -e ".[dev]"
       - name: Lint
         run: ruff check src tests
+      - name: Type check
+        run: mypy src/llm_evals
       - name: Test
         run: pytest
