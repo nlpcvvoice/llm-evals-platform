@@ -29,6 +29,7 @@ class OpenRouterConfig:
     api_key: str
     default_model: str
     fallback_models: list[str]
+    judge_model: str = "nemotron-3-super-120b-a12b:free"
     base_url: str = "https://openrouter.ai/api/v1"
     timeout: int = 120
     max_retries: int = 3
@@ -38,9 +39,14 @@ class OpenRouterConfig:
         """Primary model first, then fallbacks."""
         return [self.default_model, *self.fallback_models]
 
+    @property
+    def all_ctrl_models(self) -> list[str]:
+        """Every model this config can control (chat + judge)."""
+        return [*self.all_models, self.judge_model]
+
     def assert_free_only(self) -> None:
         """Guard: refuse any non-`:free` model (cost safety)."""
-        banned = [m for m in self.all_models if not m.endswith(":free")]
+        banned = [m for m in self.all_ctrl_models if not m.endswith(":free")]
         if banned:
             raise ValueError(f"Non-free models are not allowed: {banned}")
 
@@ -75,6 +81,9 @@ def get_openrouter_config() -> OpenRouterConfig:
         api_key=api_key,
         default_model=default_model,
         fallback_models=fallback_models,
+        judge_model=os.environ.get(
+            "OPENROUTER_JUDGE_MODEL", "nemotron-3-super-120b-a12b:free"
+        ).strip(),
         base_url=os.environ.get("OPENROUTER_BASE_URL", "https://openrouter.ai/api/v1").strip(),
         timeout=int(os.environ.get("OPENROUTER_TIMEOUT", "120")),
         max_retries=int(os.environ.get("OPENROUTER_MAX_RETRIES", "3")),

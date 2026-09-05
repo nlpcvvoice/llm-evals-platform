@@ -8,6 +8,7 @@ runner core.
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from dataclasses import dataclass
 from datetime import datetime, timezone
 
@@ -40,7 +41,7 @@ class EvalSummary:
 class EvalRunner:
     """Batch-evaluates a dataset, returning an aggregated EvalReport."""
 
-    def __init__(self, evaluators: list[Evaluator] | None = None) -> None:
+    def __init__(self, evaluators: Sequence[Evaluator] | None = None) -> None:
         self.evaluators = list(evaluators if evaluators is not None else DEFAULT_HEURISTICS)
 
     def run(self, dataset: GoldenSet, answer_provider) -> EvalReport:

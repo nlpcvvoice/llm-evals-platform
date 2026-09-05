@@ -4,6 +4,7 @@ Usage:
     python -m llm_evals.eval                    # validate default seed set
     python -m llm_evals.eval <path.jsonl>       # validate a specific set
     python -m llm_evals.eval --run <path.jsonl> # run heuristic evals
+    python -m llm_evals.eval --ragas <path.jsonl> # run RAGAS metrics (LLM judge)
 """
 
 from __future__ import annotations
@@ -11,6 +12,7 @@ from __future__ import annotations
 import sys
 
 from llm_evals.eval.dataset import DatasetError, GoldenSet
+from llm_evals.eval.ragas_eval import build_ragas_evaluators
 from llm_evals.eval.runner import EvalRunner
 
 DEFAULT = "data/golden/seed.jsonl"
@@ -41,6 +43,18 @@ def _run(path: str) -> int:
     return 0
 
 
+def _ragas(path: str) -> int:
+    gs = _validate(path)
+    runner = EvalRunner(build_ragas_evaluators())
+    report = runner.run(gs, answer_provider=lambda item: item.reference_answer)
+    print(f"RAGAS ran {report.total_eval_count} evals on {report.dataset_size} items")
+    print(f"  pass rate : {report.pass_rate:.1%} ({report.passed_count}/{report.total_eval_count})")
+    for summary in report.by_eval.values():
+        print(f"  {summary.name:24s} avg={summary.avg_score:.3f} "
+              f"pass={summary.passed}/{summary.total}")
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     args = list(argv if argv is not None else sys.argv[1:])
     if not args:
@@ -48,6 +62,8 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args[0] == "--run":
         return _run(args[1] if len(args) > 1 else DEFAULT)
+    if args[0] == "--ragas":
+        return _ragas(args[1] if len(args) > 1 else DEFAULT)
     try:
         _validate(args[0])
         return 0
