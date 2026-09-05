@@ -1,5 +1,7 @@
 # LLM Evals Platform
 
+[![CI](https://github.com/nlpcvvoice/llm-evals-platform/actions/workflows/test.yml/badge.svg)](https://github.com/nlpcvvoice/llm-evals-platform/actions/workflows/test.yml)
+
 A production-grade **evaluation and monitoring platform** for RAG/Agent systems.
 It gives LLM teams measurable quality gates, regression protection, and
 production observability — turning a one-off LLM demo into a system you can
