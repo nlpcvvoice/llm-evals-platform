@@ -5,6 +5,7 @@ Usage:
     python -m llm_evals.eval <path.jsonl>       # validate a specific set
     python -m llm_evals.eval --run <path.jsonl> # run heuristic evals
     python -m llm_evals.eval --ragas <path.jsonl> # run RAGAS metrics (LLM judge)
+    python -m llm_evals.eval --judge <path.jsonl> # run self-built LLM-as-judge
 """
 
 from __future__ import annotations
@@ -12,6 +13,7 @@ from __future__ import annotations
 import sys
 
 from llm_evals.eval.dataset import DatasetError, GoldenSet
+from llm_evals.eval.judge import DEFAULT_JUDGE
 from llm_evals.eval.ragas_eval import build_ragas_evaluators
 from llm_evals.eval.runner import EvalRunner
 
@@ -29,30 +31,27 @@ def _validate(path: str) -> GoldenSet:
     return gs
 
 
-def _run(path: str) -> int:
+def _run_with(runner: EvalRunner, path: str, label: str) -> int:
     gs = _validate(path)
-    runner = EvalRunner()
-    # Echo the question's own reference answer as a stand-in; a real
-    # system would plug its RAG/agent output here.
     report = runner.run(gs, answer_provider=lambda item: item.reference_answer)
-    print(f"Ran {report.total_eval_count} evals on {report.dataset_size} items")
+    print(f"{label} ran {report.total_eval_count} evals on {report.dataset_size} items")
     print(f"  pass rate : {report.pass_rate:.1%} ({report.passed_count}/{report.total_eval_count})")
     for summary in report.by_eval.values():
         print(f"  {summary.name:24s} avg={summary.avg_score:.3f} "
               f"pass={summary.passed}/{summary.total}")
     return 0
+
+
+def _run(path: str) -> int:
+    return _run_with(EvalRunner(), path, "Heuristic")
 
 
 def _ragas(path: str) -> int:
-    gs = _validate(path)
-    runner = EvalRunner(build_ragas_evaluators())
-    report = runner.run(gs, answer_provider=lambda item: item.reference_answer)
-    print(f"RAGAS ran {report.total_eval_count} evals on {report.dataset_size} items")
-    print(f"  pass rate : {report.pass_rate:.1%} ({report.passed_count}/{report.total_eval_count})")
-    for summary in report.by_eval.values():
-        print(f"  {summary.name:24s} avg={summary.avg_score:.3f} "
-              f"pass={summary.passed}/{summary.total}")
-    return 0
+    return _run_with(EvalRunner(build_ragas_evaluators()), path, "RAGAS")
+
+
+def _judge(path: str) -> int:
+    return _run_with(EvalRunner(DEFAULT_JUDGE), path, "Judge")
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -64,6 +63,8 @@ def main(argv: list[str] | None = None) -> int:
         return _run(args[1] if len(args) > 1 else DEFAULT)
     if args[0] == "--ragas":
         return _ragas(args[1] if len(args) > 1 else DEFAULT)
+    if args[0] == "--judge":
+        return _judge(args[1] if len(args) > 1 else DEFAULT)
     try:
         _validate(args[0])
         return 0

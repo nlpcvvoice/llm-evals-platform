@@ -14,7 +14,7 @@ Architecture choices:
 from __future__ import annotations
 
 import os
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -30,6 +30,7 @@ class OpenRouterConfig:
     default_model: str
     fallback_models: list[str]
     judge_model: str = "nemotron-3-super-120b-a12b:free"
+    judge_fallback_models: list[str] = field(default_factory=list)
     base_url: str = "https://openrouter.ai/api/v1"
     timeout: int = 120
     max_retries: int = 3
@@ -40,9 +41,14 @@ class OpenRouterConfig:
         return [self.default_model, *self.fallback_models]
 
     @property
+    def all_judge_models(self) -> list[str]:
+        """Judge model first, then judge-specific fallbacks."""
+        return [self.judge_model, *self.judge_fallback_models]
+
+    @property
     def all_ctrl_models(self) -> list[str]:
         """Every model this config can control (chat + judge)."""
-        return [*self.all_models, self.judge_model]
+        return [*self.all_models, *self.all_judge_models]
 
     def assert_free_only(self) -> None:
         """Guard: refuse any non-`:free` model (cost safety)."""
@@ -64,6 +70,10 @@ def load_shared_env() -> None:
         load_dotenv(dotenv_path=shared_path, override=True)
 
 
+def _split_model_list(raw: str) -> list[str]:
+    return [m.strip() for m in raw.split(",") if m.strip()]
+
+
 def get_openrouter_config() -> OpenRouterConfig:
     """Build the OpenRouter config from environment.
 
@@ -74,8 +84,7 @@ def get_openrouter_config() -> OpenRouterConfig:
 
     api_key = os.environ.get("OPENROUTER_API_KEY", "").strip()
     default_model = os.environ.get("OPENROUTER_DEFAULT_MODEL", "minimax/minimax-m3:free").strip()
-    fallback_raw = os.environ.get("OPENROUTER_FALLBACK_MODELS", "").strip()
-    fallback_models = [m.strip() for m in fallback_raw.split(",") if m.strip()]
+    fallback_models = _split_model_list(os.environ.get("OPENROUTER_FALLBACK_MODELS", ""))
 
     cfg = OpenRouterConfig(
         api_key=api_key,
@@ -84,6 +93,9 @@ def get_openrouter_config() -> OpenRouterConfig:
         judge_model=os.environ.get(
             "OPENROUTER_JUDGE_MODEL", "nemotron-3-super-120b-a12b:free"
         ).strip(),
+        judge_fallback_models=_split_model_list(
+            os.environ.get("OPENROUTER_JUDGE_FALLBACK_MODELS", "")
+        ),
         base_url=os.environ.get("OPENROUTER_BASE_URL", "https://openrouter.ai/api/v1").strip(),
         timeout=int(os.environ.get("OPENROUTER_TIMEOUT", "120")),
         max_retries=int(os.environ.get("OPENROUTER_MAX_RETRIES", "3")),

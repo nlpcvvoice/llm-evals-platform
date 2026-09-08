@@ -10,6 +10,7 @@ from llm_evals.eval.heuristic import (
     KeywordRecall,
     run_heuristics,
 )
+from llm_evals.eval.judge import DEFAULT_JUDGE, JudgeLLMEvaluator
 from llm_evals.eval.ragas_eval import RAGAS_METRICS, RagasEvaluator, build_ragas_evaluators
 from llm_evals.eval.runner import EvalReport, EvalRunner, EvalSummary
 from llm_evals.eval.validation import valid_evals, validate_item
@@ -26,6 +27,8 @@ __all__ = [
     "KeywordRecall",
     "EvalResult",
     "run_heuristics",
+    "DEFAULT_JUDGE",
+    "JudgeLLMEvaluator",
     "RAGAS_METRICS",
     "RagasEvaluator",
     "build_ragas_evaluators",
