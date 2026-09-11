@@ -26,3 +26,8 @@ jobs:
         run: mypy src/llm_evals
       - name: Test
         run: pytest
+      - name: Verify OpenRouter key presence (never print value)
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+        run: |
+          if [ -n "$OPENROUTER_API_KEY" ]; then echo "key_set=true"; else echo "key_set=false"; fi
